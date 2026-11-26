@@ -22,3 +22,8 @@ output "region" {
   description = "Deployment region"
   value       = var.region
 }
+
+output "vm_service_account_email" {
+  description = "Service account used by project VMs"
+  value       = google_service_account.vm_service_account.email
+}

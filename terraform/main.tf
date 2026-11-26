@@ -1,11 +1,11 @@
-# Create our custom VPC
+# Create custom VPC
 resource "google_compute_network" "project_vpc" {
   name                    = var.network_name
   auto_create_subnetworks = false
   routing_mode             = "REGIONAL"
 }
 
-# Create our subnet
+# Create subnet
 resource "google_compute_subnetwork" "project_subnet" {
   name          = var.subnet_name
   region        = var.region
@@ -15,7 +15,7 @@ resource "google_compute_subnetwork" "project_subnet" {
   private_ip_google_access = true
 }
 
-# Allow internal communication within our VPC
+# Allow internal communication within VPC
 resource "google_compute_firewall" "allow_internal" {
   name    = "allow-internal-communication"
   network = google_compute_network.project_vpc.name
@@ -72,4 +72,18 @@ resource "google_compute_firewall" "allow_health_checks" {
     protocol = "tcp"
     ports    = ["80", "8080", "8000"]
   }
+}
+
+# Dedicated service account for project VMs
+resource "google_service_account" "vm_service_account" {
+  account_id   = "ai-infrastructure-vm"
+  display_name = "AI Infrastructure VM Service Account"
+  description  = "Service account used by project VMs"
+}
+
+# Allow project VMs to write logs to Google Cloud
+resource "google_project_iam_member" "vm_logging" {
+  project = var.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.vm_service_account.email}"
 }
