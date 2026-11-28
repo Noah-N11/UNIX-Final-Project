@@ -1,0 +1,15 @@
+services:
+  database:
+    image: pgvector/pgvector:0.8.7-pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: raguser
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Password required}
+      POSTGRES_DB: ragdb
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - /data/db:/var/lib/postgresql/data
+      - ./database-init.sql:/docker-entrypoint-initdb.d/01-vector.sql:ro
+    cpus: 1.0
+    mem_limit: 1g
